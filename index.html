@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Marathon de Tours · Résultats</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E9EDF0; --s1:#F7F9FA; --s2:#DDE3E8; --s3:#CFD7DE;
+  --ink:#16212A; --ink2:#4F5E6A; --ink3:#7A8792;
+  --hero:#1D2A33; --hero-ink:#EEF2F4; --hero-ink2:#A9B7C1;
+  --acc:#1F5FAD; --acc-t:#DAE6F5;
+  --pos:#1B7A50; --pos-t:#DCEFE4; --neg:#B03A32; --neg-t:#F5E0DD; --warn-t:#F3EAD2;
+  --gold:#B8860B; --silver:#7C8791; --bronze:#A0612B;
+  --c0:#1F5FAD; --c1:#D2782A; --c2:#2E8B57; --c3:#8A55B8;
+  --bib:#FFFFFF; --bib-ink:#16212A;
+  --sans:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --cond:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --r:10px;
+  color-scheme:light dark;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#131A20; --s1:#1B242B; --s2:#253039; --s3:#303C46;
+    --ink:#E6EBEE; --ink2:#A6B2BB; --ink3:#7C8994;
+    --hero:#0E1419; --hero-ink:#E6EBEE; --hero-ink2:#8F9DA8;
+    --acc:#7EAEEE; --acc-t:#1E2F45;
+    --pos:#6CC996; --pos-t:#173026; --neg:#EE8B81; --neg-t:#3A201E; --warn-t:#352D1A;
+    --gold:#E0B64A; --silver:#AAB4BC; --bronze:#D09062;
+    --c0:#7EAEEE; --c1:#EDA25F; --c2:#6CC996; --c3:#BE93E6;
+    --bib:#F2F4F5; --bib-ink:#16212A;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--sans);
+  padding-bottom:env(safe-area-inset-bottom,0)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.num{font-variant-numeric:tabular-nums}
+.pos{color:var(--pos)}.neg{color:var(--neg)}.zer{color:var(--ink3)}
+
+/* En-tête */
+.hero{background:var(--hero);color:var(--hero-ink);padding:calc(40px + env(safe-area-inset-top,0)) 0 34px}
+.hero h1{font:500 clamp(2.6rem,8vw,4.6rem)/.95 var(--cond);margin:0 0 6px;letter-spacing:-.01em}
+.hero .lede{margin:0 0 26px;color:var(--hero-ink2);font-weight:300;font-size:1.1rem}
+.search{position:relative;max-width:640px}
+.search input{width:100%;background:var(--hero-ink);color:#16212A;border:0;border-radius:var(--r);
+  padding:16px 18px 16px 50px;font-size:1.15rem;font-weight:400}
+.search input::placeholder{color:#7A8792}
+.search svg{position:absolute;left:17px;top:50%;transform:translateY(-50%);width:20px;height:20px;
+  stroke:#7A8792;fill:none;stroke-width:2}
+.summary{margin:18px 0 0;max-width:640px;color:var(--hero-ink2);font-weight:300}
+.summary b{color:var(--hero-ink);font-weight:500}
+
+/* Onglets */
+.tabs{position:sticky;top:0;z-index:20;background:var(--bg)}
+.tabs .wrap{display:flex;gap:4px;padding-top:12px;padding-bottom:12px;overflow-x:auto}
+.tabs button{background:none;border:0;border-radius:999px;padding:9px 18px;color:var(--ink2);
+  font-weight:500;white-space:nowrap}
+.tabs button:hover{background:var(--s2)}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.tabs .badge[hidden]{display:none}
+.tabs .badge{display:inline-block;min-width:1.4em;margin-left:6px;padding:0 6px;border-radius:999px;
+  background:var(--acc);color:#fff;font-size:.8rem;line-height:1.4em}
+.panel{display:none;padding:8px 0 60px}.panel.on{display:block}
+
+/* Barre d'outils */
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 12px}
+.chipbtn{background:var(--s1);border:0;border-radius:999px;padding:8px 16px;font-weight:500}
+.chipbtn:hover{background:var(--s2)}
+.chipbtn[aria-expanded="true"]{background:var(--ink);color:var(--bg)}
+.count{color:var(--ink2);font-size:.95rem}
+.sort{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--ink2);font-size:.95rem}
+select{background:var(--s1);border:0;border-radius:8px;padding:8px 12px}
+.filters{display:none;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;
+  background:var(--s1);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.filters.on{display:grid}
+.filters label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--ink2)}
+.filters select{background:var(--bg);width:100%}
+.filters .clear{align-self:end;background:none;border:0;color:var(--acc);font-weight:500;padding:8px 0;text-align:left}
+
+/* Liste */
+.cols,.row{display:grid;align-items:center;gap:12px;
+  grid-template-columns:3rem minmax(0,1fr) 4.5rem 6rem 4rem 5rem 4.5rem}
+.cols{padding:0 60px 8px 14px;font-size:.82rem;color:var(--ink3)}
+.cols span:nth-child(n+3),.row>span:nth-child(n+3){text-align:right}
+ol.list{list-style:none;margin:0;padding:0}
+ol.list>li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px;margin-bottom:3px}
+.row{scroll-margin-top:72px;background:var(--s1);border:0;border-radius:8px;padding:11px 14px;text-align:left;width:100%}
+.row:hover{background:var(--s2)}
+li.open>.row{background:var(--ink);color:var(--bg)}
+li.open>.row .sub,li.open>.row small{color:var(--s3)}
+li.open>.row .pos,li.open>.row .neg,li.open>.row .zer{color:inherit}
+.add{background:var(--s1);border:0;border-radius:8px;width:42px;font-size:1.3rem;font-weight:300;color:var(--ink2)}
+.add:hover{background:var(--acc-t);color:var(--acc)}
+.add.in{background:var(--acc);color:#fff}
+.rk{font:500 1.15rem/1 var(--cond)}
+.rk.m1{color:var(--gold)}.rk.m2{color:var(--silver)}.rk.m3{color:var(--bronze)}
+li.open .rk{color:inherit}
+.nm{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub{display:block;font-size:.85rem;color:var(--ink3)}
+.tag{display:inline-block;font-size:.78rem;font-weight:500;padding:0 7px;border-radius:5px;
+  background:var(--s2);color:var(--ink2);margin-right:4px}
+.tag.F{background:#F1E3F2;color:#86408C}
+@media (prefers-color-scheme:dark){.tag.F{background:#3A2440;color:#E1A9E6}}
+li.open .tag{background:rgba(255,255,255,.15);color:inherit}
+.time{font:500 1.15rem/1.1 var(--cond)}
+.row small{display:none;font-size:.8rem;color:var(--ink3)}
+.more{text-align:center;margin-top:16px}
+.more button{background:var(--s1);border:0;border-radius:999px;padding:11px 22px;font-weight:500}
+.more button:hover{background:var(--s2)}
+.empty{padding:40px 16px;text-align:center;color:var(--ink2);background:var(--s1);border-radius:var(--r)}
+
+@media (max-width:760px){
+  .wrap{padding:0 14px}
+  .cols{display:none}
+  .row{grid-template-columns:2.4rem minmax(0,1fr) auto;gap:10px;padding:10px 12px}
+  .row>span:nth-child(3),.row>span:nth-child(5),.row>span:nth-child(6),.row>span:nth-child(7){display:none}
+  .row small{display:block}
+  .sort{margin-left:0;width:100%}
+  .sort select{flex:1}
+}
+
+/* Fiche coureur */
+li.fiche{display:block!important;background:var(--s1);border-radius:var(--r);margin:0 0 12px;padding:22px}
+@media (prefers-reduced-motion:no-preference){li.fiche{animation:open .2s ease-out}}
+@keyframes open{from{opacity:0;transform:translateY(-4px)}}
+.f-top{display:grid;grid-template-columns:260px minmax(0,1fr);gap:28px;align-items:start}
+.bib{--h:var(--s1);background:
+  radial-gradient(circle,var(--h) 0 4px,transparent 4.6px) 8px 8px/14px 14px no-repeat,
+  radial-gradient(circle,var(--h) 0 4px,transparent 4.6px) calc(100% - 8px) 8px/14px 14px no-repeat,
+  radial-gradient(circle,var(--h) 0 4px,transparent 4.6px) 8px calc(100% - 8px)/14px 14px no-repeat,
+  radial-gradient(circle,var(--h) 0 4px,transparent 4.6px) calc(100% - 8px) calc(100% - 8px)/14px 14px no-repeat,
+  var(--bib);
+  color:var(--bib-ink);border-radius:6px;padding:14px 22px 20px;text-align:center;
+  box-shadow:0 1px 0 rgba(0,0,0,.06),0 8px 24px -14px rgba(0,0,0,.35);transform:rotate(-1.2deg)}
+.bib .band{background:#1F5FAD;color:#fff;font:500 .95rem/1 var(--cond);letter-spacing:.02em;
+  margin:4px -8px 6px;padding:7px 0;border-radius:3px}
+.bib .no{font:500 4.4rem/1.05 var(--cond);letter-spacing:-.02em;white-space:nowrap}
+.bib .who{font-weight:500;font-size:1.05rem;line-height:1.2}
+.bib .meta{font-size:.85rem;color:#4F5E6A}
+.f-head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.f-time{font:500 3.4rem/1 var(--cond);letter-spacing:-.01em}
+.f-time small{display:block;font:300 1rem/1.4 var(--sans);color:var(--ink2);letter-spacing:0}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.acts button{background:var(--bg);border:0;border-radius:999px;padding:7px 14px;font-weight:500;font-size:.9rem}
+.acts button:hover{background:var(--s2)}
+.facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px 20px;margin:20px 0 0}
+.facts div{min-width:0}
+.facts dt{font-size:.82rem;color:var(--ink3)}
+.facts dd{margin:0;font-weight:500;font-size:1.05rem}
+.facts dd small{font-weight:400;color:var(--ink2);font-size:.85rem}
+.notes{margin:24px 0 0;padding:0;list-style:none;display:grid;gap:6px}
+.notes li{padding:10px 14px;border-radius:8px;background:var(--bg);font-size:.97rem;max-width:78ch}
+.notes li.ok{background:var(--pos-t)}.notes li.ko{background:var(--neg-t)}.notes li.warn{background:var(--warn-t)}
+.notes b{font-weight:500}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;margin-top:28px}
+h3.h{font:500 1.05rem/1.3 var(--sans);margin:0 0 8px}
+p.hint{margin:-4px 0 10px;font-size:.85rem;color:var(--ink3)}
+details.pass{margin-top:24px}
+details.pass summary{cursor:pointer;font-weight:500;color:var(--acc)}
+@media (max-width:760px){
+  li.fiche{padding:16px}
+  .f-top{grid-template-columns:1fr;gap:20px}
+  .bib{max-width:280px;margin:0 auto}
+  .f-time{font-size:2.8rem}
+}
+
+/* Tableaux */
+.tscroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.95rem}
+th{text-align:left;font-weight:400;font-size:.82rem;color:var(--ink3);padding:6px 10px;white-space:nowrap}
+td{padding:8px 10px;white-space:nowrap}
+tbody tr:nth-child(odd) td{background:var(--bg)}
+tbody tr td:first-child{border-radius:6px 0 0 6px}tbody tr td:last-child{border-radius:0 6px 6px 0}
+td.r,th.r{text-align:right}
+.lk{background:none;border:0;padding:0;font-weight:500;text-align:left;color:inherit}
+.lk:hover{color:var(--acc);text-decoration:underline}
+
+/* Graphiques */
+svg.ch{display:block;width:100%;height:auto;overflow:visible}
+.ch text{font:400 11px var(--sans);fill:var(--ink3)}
+.ch .gl{stroke:var(--s2);stroke-width:1}
+.ch .ln{fill:none;stroke:var(--c);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}
+.ch .dot{fill:var(--c)}
+.ch .end{fill:var(--c);font-weight:500;font-size:12px}
+.ch .med{fill:none;stroke:var(--ink3);stroke-width:1.6;stroke-dasharray:4 4}
+.ch .bar{fill:var(--s3)}
+.ch .bar.hi{fill:var(--acc)}
+.ch .bH{fill:var(--c0)}.ch .bF{fill:var(--c3)}
+.ch .mk{font-weight:500;fill:var(--acc)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;color:var(--ink2);margin-top:6px}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px;background:var(--c)}
+.legend i.dash{background:repeating-linear-gradient(90deg,var(--ink3) 0 4px,transparent 4px 7px)}
+.legend i.sq{height:10px;width:10px}
+
+/* Statistiques */
+.sec{margin:34px 0 0}
+.sec>h2{font:500 1.9rem/1.1 var(--cond);margin:0 0 4px}
+.sec>p.hint{margin:0 0 16px;font-size:.95rem}
+.box{background:var(--s1);border-radius:var(--r);padding:20px}
+.ins{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.ins div{background:var(--s1);border-radius:var(--r);padding:16px 18px}
+.ins span{font-size:.88rem;color:var(--ink2)}
+.ins b{display:block;font:500 1.7rem/1.15 var(--cond);margin:2px 0 4px}
+.ins p{margin:0;font-size:.9rem;color:var(--ink2)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.gline{font-size:.92rem;color:var(--ink2);margin:0 0 12px}
+.gline b{color:var(--ink);font-weight:500}
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.pills button{background:var(--s1);border:0;border-radius:999px;padding:7px 14px;font-size:.9rem}
+.pills button:hover{background:var(--s2)}
+.pills button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+details.cat{background:var(--s1);border-radius:8px;margin-bottom:4px}
+details.cat summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:7rem 1fr auto;
+  gap:12px;align-items:center;padding:11px 14px}
+details.cat summary::-webkit-details-marker{display:none}
+details.cat summary:hover{background:var(--s2);border-radius:8px}
+details.cat summary .m{color:var(--ink2);font-size:.9rem;text-align:right}
+details.cat .body{padding:0 10px 12px}
+.nats{display:flex;gap:6px;flex-wrap:wrap}
+.nats span{background:var(--s1);border-radius:6px;padding:4px 10px;font-size:.9rem}
+.nats b{font-weight:500}
+
+/* Comparateur */
+.cmp-search{position:relative;max-width:520px}
+.cmp-search input{width:100%;background:var(--s1);border:0;border-radius:var(--r);padding:13px 16px;font-size:1.05rem}
+.hits{list-style:none;margin:6px 0 0;padding:0;max-width:520px}
+.hits button{width:100%;display:flex;justify-content:space-between;gap:10px;background:var(--s1);border:0;
+  border-radius:6px;padding:9px 14px;margin-bottom:2px;text-align:left}
+.hits button:hover{background:var(--acc-t)}
+.hits button span:last-child{color:var(--ink2)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+.chip{display:flex;align-items:center;gap:8px;background:var(--s1);border-radius:999px;padding:6px 6px 6px 14px}
+.chip i{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.chip button{background:var(--bg);border:0;border-radius:50%;width:26px;height:26px;line-height:1}
+.chip button:hover{background:var(--neg-t);color:var(--neg)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c);margin-right:6px}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0));transform:translateX(-50%);
+  background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:500;z-index:50}
+footer{color:var(--ink3);font-size:.88rem;padding:28px 0 40px}
+
+@media print{
+  :root{--bg:#fff;--s1:#fff}
+  .hero,.tabs,.toolbar,.filters,.cols,ol.list>li:not(.open):not(.fiche),.add,.more,.acts,footer,.toast{display:none!important}
+  .panel:not(#p-res){display:none!important}
+  li.open>.row{background:#fff;color:#000}
+  li.fiche{padding:0}
+  details.pass{display:block}details.pass>*{display:block}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Marathon de Tours</h1>
+    <p class="lede">Résultats et analyse de course de tous les arrivants</p>
+    <div class="search">
+      <label for="q" class="sr">Rechercher un coureur</label>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+      <input id="q" type="search" placeholder="Nom, prénom ou dossard" autocomplete="off" enterkeyhint="search">
+    </div>
+    <p class="summary" id="summary">Chargement des résultats…</p>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Sections">
+  <div class="wrap" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="res">Résultats</button>
+    <button role="tab" aria-selected="false" data-tab="stats">Statistiques</button>
+    <button role="tab" aria-selected="false" data-tab="cmp">Comparer<span class="badge" id="cmpn" hidden>0</span></button>
+  </div>
+</nav>
+
+<main class="wrap">
+  <section class="panel on" id="p-res" role="tabpanel">
+    <div class="toolbar">
+      <button class="chipbtn" id="fbtn" aria-expanded="false" aria-controls="filters">Filtres</button>
+      <span class="count" id="count" aria-live="polite"></span>
+      <label class="sort">Trier par
+        <select id="sort">
+          <option value="rg">Classement</option>
+          <option value="nom">Nom</option>
+          <option value="ds">Meilleur negative split</option>
+          <option value="gain">Places gagnées depuis le km 5</option>
+          <option value="reg">Allure la plus régulière</option>
+        </select>
+      </label>
+    </div>
+    <div class="filters" id="filters">
+      <label>Genre<select id="fg"><option value="">Tous</option><option value="H">Hommes</option><option value="F">Femmes</option></select></label>
+      <label>Catégorie<select id="fc"></select></label>
+      <label>Nationalité<select id="fn"></select></label>
+      <label>Temps<select id="ft">
+        <option value="">Tous les temps</option><option value="10800">Sous 3 h</option><option value="12600">Sous 3 h 30</option>
+        <option value="14400">Sous 4 h</option><option value="16200">Sous 4 h 30</option><option value="18000">Sous 5 h</option>
+      </select></label>
+      <label>Negative split<select id="fns"><option value="">Tous</option><option value="1">Oui</option><option value="0">Non</option></select></label>
+      <button class="clear" id="fclear">Effacer les filtres</button>
+    </div>
+    <div class="cols" aria-hidden="true">
+      <span>Place</span><span>Coureur</span><span>Cl. cat.</span><span>Temps</span><span>Allure</span><span>Écart semis</span><span>Places</span>
+    </div>
+    <ol class="list" id="list"></ol>
+    <div class="more" id="more"></div>
+  </section>
+
+  <section class="panel" id="p-stats" role="tabpanel"></section>
+
+  <section class="panel" id="p-cmp" role="tabpanel">
+    <div class="sec" style="margin-top:8px">
+      <h2>Comparer jusqu'à 4 coureurs</h2>
+      <p class="hint">Cherche un nom ici, ou utilise le bouton + à côté de chaque ligne des résultats.</p>
+      <div class="cmp-search">
+        <label for="cq" class="sr">Ajouter un coureur</label>
+        <input id="cq" type="search" placeholder="Nom ou dossard" autocomplete="off">
+      </div>
+      <ul class="hits" id="hits"></ul>
+      <div class="chips" id="chips"></div>
+      <div id="cmpout"></div>
+    </div>
+  </section>
+
+  <footer id="foot">Données issues du classement officiel du Marathon de Tours.</footer>
+</main>
+
+<script>
+"use strict";
+let D, R = [], S, M;
+let VIEW = [], OPEN = null, SHOWN = 0, CMP = [], PAL = null;
+const PAGE = 100;
+const SORTS = {
+  rg:   { k: "rg",   dir: 1 },
+  nom:  { k: "nom",  dir: 1 },
+  ds:   { k: "ds",   dir: 1 },
+  gain: { k: "gain", dir: -1 },
+  reg:  { k: "reg",  dir: 1 }
+};
+const SEG_SHORT = ["0-5", "5-10", "10-15", "15-21", "21-30", "30-35", "35-40", "40-42"];
+const KM_SHORT = ["5", "10", "15", "21", "30", "35", "40", "42"];
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const pad = n => String(n).padStart(2, "0");
+const norm = s => String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const nf = (v, d = 0) => v == null ? "—" : v.toLocaleString("fr-FR", { minimumFractionDigits: d, maximumFractionDigits: d });
+function hms(s) { if (s == null) return "—"; s = Math.round(s); return `${s / 3600 | 0}:${pad((s % 3600) / 60 | 0)}:${pad(s % 60)}`; }
+function dur(s, plus) {
+  if (s == null) return "—";
+  const a = Math.abs(Math.round(s));
+  const body = a >= 3600 ? hms(a) : `${a / 60 | 0}:${pad(a % 60)}`;
+  return (s < 0 ? "−" : plus && s > 0 ? "+" : "") + body;
+}
+function pace(sec) { if (sec == null || !isFinite(sec)) return "—"; sec = Math.round(sec); return `${sec / 60 | 0}:${pad(sec % 60)}`; }
+function p2s(p) { if (!p) return null; const [m, s] = p.split(":"); return +m * 60 + +s; }
+const signed = (v, d = 0) => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "") + nf(Math.abs(v), d);
+const cls = v => v == null ? "zer" : v > 0 ? "pos" : v < 0 ? "neg" : "zer";
+const name = r => `${r.p} ${r.n}`;
+const medal = p => p === 1 ? "m1" : p === 2 ? "m2" : p === 3 ? "m3" : "";
+const ord = n => n == null ? "—" : n === 1 ? "1er" : `${n}e`;
+function median(a) { a = a.filter(v => v != null).sort((x, y) => x - y); if (!a.length) return null; const m = a.length >> 1; return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2; }
+function catKey(c) {
+  const m = c.match(/^M(\d+)([HF])$/);
+  if (m) return [2, +m[1], m[2]];
+  if (c === "N.C.") return [9, 0, ""];
+  const order = { "EF - U23F": 0, "EH - U23H": 1, "SF": 2, "SH": 3 };
+  return [order[c] != null ? (order[c] < 2 ? 0 : 1) : 8, order[c] ?? 0, ""];
+}
+function catSort(a, b) { const x = catKey(a), y = catKey(b); for (let i = 0; i < 3; i++) { if (x[i] < y[i]) return -1; if (x[i] > y[i]) return 1; } return 0; }
+
+/* ---------- Chargement ---------- */
+fetch("data.json")
+  .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+  .then(d => { D = d; R = d.runners; S = d.stats; M = d.meta; boot(); })
+  .catch(e => {
+    $("#summary").textContent = "";
+    $("#list").innerHTML = `<li class="empty" style="display:block">Le fichier data.json n'a pas pu être chargé (${esc(e.message)}).<br>
+      Il doit se trouver dans le même dossier que index.html. En local, ouvre la page via un serveur :
+      <code>python3 -m http.server 8000</code>, puis va sur localhost:8000.</li>`;
+  });
+
+const CAT_N = {}, CAT_MED = {}, G_MED = {};
+
+function boot() {
+  R.forEach(r => {
+    r.key = norm(`${r.p} ${r.n} ${r.d}`);
+    r.sp = M.cpDist.map((d, j) => {
+      const t1 = r.cp[j][0], t0 = j ? r.cp[j - 1][0] : 0;
+      if (t1 == null || t0 == null) return null;
+      return (t1 - t0) / (d - (j ? M.cpDist[j - 1] : 0));
+    });
+    r.miss = M.cpLabels.slice(0, -1).filter((l, j) => r.cp[j][0] == null);
+    CAT_N[r.c] = (CAT_N[r.c] || 0) + 1;
+  });
+  Object.keys(CAT_N).forEach(c => CAT_MED[c] = median(R.filter(r => r.c === c).map(r => r.t)));
+  ["H", "F"].forEach(g => G_MED[g] = median(R.filter(r => r.g === g).map(r => r.t)));
+
+  $("#summary").innerHTML = `<b>${nf(M.n)}</b> arrivants, dont ${nf(M.nF)} femmes. Premier en <b>${hms(M.tMin)}</b>,
+    dernier en ${hms(M.tMax)}. La moitié du peloton est passée sous ${hms(M.tMed)}.`;
+
+  const cats = Object.keys(CAT_N).sort(catSort);
+  $("#fc").innerHTML = `<option value="">Toutes</option>` + cats.map(c => `<option>${esc(c)}</option>`).join("");
+  $("#fn").innerHTML = `<option value="">Toutes</option>` + S.nats.map(x => `<option value="${esc(x.k)}">${esc(x.k)} (${x.n})</option>`).join("");
+
+  $("#q").addEventListener("input", () => { showTab("res"); SHOWN = 0; apply(); });
+  ["#fg", "#fc", "#fn", "#ft", "#fns", "#sort"].forEach(s => $(s).addEventListener("change", () => { SHOWN = 0; apply(); }));
+  $("#fbtn").onclick = () => { const on = $("#filters").classList.toggle("on"); $("#fbtn").setAttribute("aria-expanded", on); };
+  $("#fclear").onclick = () => { ["#fg", "#fc", "#fn", "#ft", "#fns"].forEach(s => $(s).value = ""); SHOWN = 0; apply(); };
+  $$(".tabs button").forEach(b => b.onclick = () => showTab(b.dataset.tab));
+  $("#list").addEventListener("click", onListClick);
+  $("#foot").textContent = `Données issues du classement officiel du Marathon de Tours : ${nf(M.n)} arrivants, ${M.cpLabels.length} points de chronométrage.`;
+
+  initCmp();
+  apply();
+  fromHash();
+  window.addEventListener("hashchange", fromHash);
+}
+
+function fromHash() {
+  const m = location.hash.match(/d=(\d+)/);
+  if (!m) return;
+  const r = R.find(x => String(x.d) === m[1]);
+  if (r && OPEN !== r.i) goTo(r.i);
+}
+
+function showTab(t) {
+  $$(".tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === t));
+  $$(".panel").forEach(p => p.classList.toggle("on", p.id === "p-" + t));
+  if (t === "stats" && !$("#p-stats").dataset.done) renderStats();
+}
+
+/* ---------- Filtrage & tri ---------- */
+function apply() {
+  const terms = norm($("#q").value.trim()).split(/\s+/).filter(Boolean);
+  const g = $("#fg").value, c = $("#fc").value, n = $("#fn").value, ns = $("#fns").value, tmax = +$("#ft").value || 0;
+  const nF = [g, c, n, ns, tmax ? 1 : ""].filter(v => v !== "").length;
+  $("#fbtn").textContent = nF ? `Filtres (${nF})` : "Filtres";
+
+  VIEW = R.filter(r =>
+    (!g || r.g === g) && (!c || r.c === c) && (!n || r.nat === n) &&
+    (ns === "" || String(r.ns) === ns) && (!tmax || r.t < tmax) &&
+    terms.every(t => r.key.includes(t)));
+
+  const { k, dir } = SORTS[$("#sort").value];
+  VIEW.sort((a, b) => {
+    const x = k === "nom" ? norm(a.n + " " + a.p) : a[k], y = k === "nom" ? norm(b.n + " " + b.p) : b[k];
+    if (x == null && y == null) return a.rg - b.rg;
+    if (x == null) return 1;
+    if (y == null) return -1;
+    return x < y ? -dir : x > y ? dir : a.rg - b.rg;
+  });
+  $("#count").textContent = VIEW.length === R.length ? `${nf(R.length)} coureurs` : `${nf(VIEW.length)} sur ${nf(R.length)}`;
+  draw();
+}
+
+function draw() {
+  const list = $("#list");
+  if (!VIEW.length) {
+    list.innerHTML = `<li class="empty" style="display:block">Aucun coureur ne correspond. Vérifie l'orthographe ou efface les filtres.</li>`;
+    $("#more").innerHTML = "";
+    return;
+  }
+  const lim = Math.min(VIEW.length, Math.max(SHOWN, PAGE));
+  SHOWN = lim;
+  let h = "";
+  for (let i = 0; i < lim; i++) {
+    h += rowHTML(VIEW[i]);
+    if (VIEW[i].i === OPEN) h += `<li class="fiche" id="fiche">${ficheHTML(VIEW[i])}</li>`;
+  }
+  list.innerHTML = h;
+  const left = VIEW.length - lim;
+  $("#more").innerHTML = left > 0 ? `<button id="mb">Afficher ${Math.min(PAGE, left)} de plus (${nf(left)} restants)</button>` : "";
+  if (left > 0) $("#mb").onclick = () => { SHOWN += PAGE; draw(); };
+}
+
+function rowHTML(r) {
+  const open = r.i === OPEN, inC = CMP.includes(r.i);
+  return `<li${open ? ' class="open"' : ""}>
+  <button class="row" data-open="${r.i}" aria-expanded="${open}">
+    <span class="rk ${medal(r.rg)}">${r.rg}</span>
+    <span><span class="nm">${esc(name(r))}</span><span class="sub"><span class="tag ${r.g}">${esc(r.c)}</span>${r.d}${r.ns ? ", negative split" : ""}</span></span>
+    <span class="num">${r.rcat ? ord(r.rcat) : "—"}</span>
+    <span><span class="time num">${hms(r.t)}</span><small>${r.pa} /km</small></span>
+    <span class="num">${r.pa}</span>
+    <span class="num ${r.ds == null ? "zer" : cls(-r.ds)}">${dur(r.ds, true)}</span>
+    <span class="num ${cls(r.gain)}">${signed(r.gain)}</span>
+  </button>
+  <button class="add${inC ? " in" : ""}" data-add="${r.i}" aria-label="${inC ? "Retirer" : "Ajouter"} ${esc(name(r))} ${inC ? "du" : "au"} comparateur" aria-pressed="${inC}">${inC ? "✓" : "+"}</button>
+</li>`;
+}
+
+function onListClick(e) {
+  const o = e.target.closest("[data-open]"), a = e.target.closest("[data-add]"), act = e.target.closest("[data-act]");
+  if (a) { toggleCmp(+a.dataset.add); return; }
+  if (act) { ficheAction(act); return; }
+  if (o) toggle(+o.dataset.open);
+}
+
+function toggle(i, force) {
+  OPEN = (OPEN === i && !force) ? null : i;
+  const idx = VIEW.findIndex(x => x.i === OPEN);
+  if (idx >= SHOWN) SHOWN = Math.ceil((idx + 1) / PAGE) * PAGE;
+  draw();
+  if (OPEN != null) {
+    const row = $(`[data-open="${OPEN}"]`);
+    if (row) row.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion:reduce)").matches ? "auto" : "smooth" });
+  }
+}
+
+function goTo(i) {
+  const r = R[i];
+  if (!r) return;
+  showTab("res");
+  ["#fg", "#fc", "#fn", "#ft", "#fns"].forEach(s => $(s).value = "");
+  $("#sort").value = "rg";
+  $("#q").value = String(r.d);
+  SHOWN = 0;
+  apply();
+  toggle(r.i, true);
+}
+
+/* ---------- Fiche coureur ---------- */
+function ficheHTML(r) {
+  const gN = r.g === "H" ? M.nH : M.nF, gL = r.g === "H" ? "Hommes" : "Femmes";
+  const ahead = (rank, tot) => rank === 1 ? "vainqueur du marathon" : `devant ${Math.floor((tot - rank) / tot * 100)} % du peloton`;
+  const facts = [
+    ["Classement général", `${ord(r.rg)} <small>sur ${nf(M.n)}</small>`],
+    [gL, `${ord(r.rgen)} <small>sur ${nf(gN)}</small>`],
+    [r.c === "N.C." ? "Catégorie" : `Catégorie ${esc(r.c)}`, r.rcat ? `${ord(r.rcat)} <small>sur ${CAT_N[r.c]}</small>` : "<small>non classé</small>"],
+    ["Allure moyenne", `${r.pa} <small>/km</small>`],
+    ["Vitesse moyenne", `${nf(r.v, 2)} <small>km/h</small>`],
+    ["1er semi", hms(r.s1)],
+    ["2nd semi", hms(r.s2)],
+    ["Écart entre semis", r.ds == null ? "—" : `<span class="${cls(-r.ds)}">${dur(r.ds, true)}</span>`]
+  ];
+
+  const notes = [];
+  if (r.ds == null) notes.push(["warn", "<b>Semis non calculables</b> : pas de temps de passage au semi-marathon."]);
+  else if (r.ns) notes.push(["ok", `<b>Negative split</b> : le 2nd semi est plus rapide de ${dur(-r.ds)}. Environ ${nf(S.ns.rate, 0)} % du peloton y arrive.`]);
+  else if (r.ds <= 0) notes.push(["ok", `<b>Semis quasi identiques</b> : ${dur(Math.abs(r.ds))} d'écart seulement. Gestion très régulière.`]);
+  else if (r.ds < 180) notes.push(["ok", `<b>Course bien gérée</b> : ${dur(r.ds)} de plus sur le 2nd semi, là où le peloton en perd ${dur(S.ns.dsMed)} en médiane.`]);
+  else if (r.ds < 900) notes.push(["", `<b>Ralentissement dans la norme</b> : ${dur(r.ds, true)} sur le 2nd semi (médiane du peloton ${dur(S.ns.dsMed, true)}).`]);
+  else notes.push(["ko", `<b>Le mur</b> : ${dur(r.ds, true)} sur le 2nd semi, bien au-delà de la médiane du peloton (${dur(S.ns.dsMed, true)}).`]);
+
+  const sp = r.sp.map((v, j) => ({ v, j })).filter(x => x.v != null);
+  if (sp.length >= 3) {
+    const best = sp.reduce((a, b) => b.v < a.v ? b : a), worst = sp.reduce((a, b) => b.v > a.v ? b : a);
+    notes.push(["", `<b>Meilleur segment</b> : km ${SEG_SHORT[best.j]} à ${pace(best.v)} /km. <b>Le plus dur</b> : km ${SEG_SHORT[worst.j]} à ${pace(worst.v)} /km.`]);
+  }
+  if (r.gain != null && r.gain !== 0)
+    notes.push([r.gain > 0 ? "ok" : "ko", `<b>${r.gain > 0 ? "Remontée" : "Recul"}</b> : ${nf(Math.abs(r.gain))} place${Math.abs(r.gain) > 1 ? "s" : ""} ${r.gain > 0 ? "gagnée" : "perdue"}${Math.abs(r.gain) > 1 ? "s" : ""} entre le km 5 et l'arrivée${r.gain2 != null && r.gain2 !== 0 ? `, dont ${signed(r.gain2)} sur le 2nd semi` : ""}.`]);
+  if (r.reg != null)
+    notes.push(["", `<b>Régularité</b> : ${nf(r.reg, 1)} % de variation d'allure entre segments, ${r.reg < S.ns.regMed ? "plus régulier" : "moins régulier"} que la médiane du peloton (${nf(S.ns.regMed, 1)} %).`]);
+  if (r.miss.length)
+    notes.push(["warn", `<b>Puce non détectée</b> au${r.miss.length > 1 ? "x" : ""} ${r.miss.map(l => l.replace("KM", "km ")).join(", ")}. Les allures de ces segments ne sont pas affichées.`]);
+
+  const pass = M.cpLabels.map((L, j) => {
+    const c = r.cp[j];
+    return `<tr><td>${L === "Finish" ? "Arrivée" : L.replace("KM", "km ")}</td><td class="r num">${hms(c[0])}</td>
+      <td class="r num">${pace(r.sp[j])}</td><td class="r num">${c[1] ?? "—"}</td>
+      <td class="r num ${cls(c[2])}">${j && c[2] != null ? signed(c[2]) : ""}</td></tr>`;
+  }).join("");
+
+  const refs = [[`Catégorie ${r.c}`, CAT_MED[r.c]], [gL, G_MED[r.g]], ["Tout le peloton", M.tMed]]
+    .map(([l, t]) => `<tr><td>${esc(l)}</td><td class="r num">${hms(t)}</td><td class="r num ${cls(t - r.t)}">${dur(r.t - t, true)}</td></tr>`).join("");
+
+  return `<div class="f-top">
+    <div class="bib" aria-label="Dossard ${r.d}">
+      <div class="band">Marathon de Tours</div>
+      <div class="no num">${r.d}</div>
+      <div class="who">${esc(name(r))}</div>
+      <div class="meta">${esc(r.c)}, ${r.g === "H" ? "homme" : "femme"}, ${esc(r.nat)}</div>
+    </div>
+    <div>
+      <div class="f-head">
+        <div class="f-time num">${hms(r.t)}<small>${ahead(r.rg, M.n)}</small></div>
+        <div class="acts">
+          <button data-act="cmp" data-i="${r.i}">${CMP.includes(r.i) ? "Retirer du comparateur" : "Comparer"}</button>
+          <button data-act="lnk" data-d="${r.d}">Copier le lien</button>
+          <button data-act="prt">Imprimer</button>
+        </div>
+      </div>
+      <dl class="facts">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd class="num">${v}</dd></div>`).join("")}</dl>
+      <ul class="notes">${notes.map(([c, t]) => `<li class="${c}">${t}</li>`).join("")}</ul>
+    </div>
+  </div>
+  <div class="charts">
+    <div><h3 class="h">Place au fil des kilomètres</h3><p class="hint">En haut, la tête de course.</p>${rankChart([r])}</div>
+    <div><h3 class="h">Allure par segment</h3><p class="hint">En haut, plus rapide.</p>${paceChart([r])}</div>
+    <div><h3 class="h">Où tu te situes</h3><p class="hint">Répartition des temps d'arrivée par tranche de 10 minutes.</p>${histChart(S.histTime, r.t)}</div>
+    <div><h3 class="h">Face aux temps médians</h3><p class="hint">Un écart négatif signifie plus rapide que la médiane.</p>
+      <div class="tscroll"><table><thead><tr><th>Référence</th><th class="r">Médiane</th><th class="r">Écart</th></tr></thead><tbody>${refs}</tbody></table></div></div>
+  </div>
+  <details class="pass"><summary>Détail des temps de passage</summary>
+    <div class="tscroll" style="margin-top:10px"><table><thead><tr><th>Point</th><th class="r">Temps</th><th class="r">Allure du segment</th><th class="r">Place</th><th class="r">Évolution</th></tr></thead><tbody>${pass}</tbody></table></div>
+  </details>`;
+}
+
+function ficheAction(b) {
+  const a = b.dataset.act;
+  if (a === "cmp") toggleCmp(+b.dataset.i);
+  if (a === "prt") { const d = $("details.pass"); if (d) d.open = true; window.print(); }
+  if (a === "lnk") {
+    const u = location.href.split("#")[0] + "#d=" + b.dataset.d;
+    history.replaceState(null, "", "#d=" + b.dataset.d);
+    const done = () => toast("Lien copié");
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(u).then(done, () => prompt("Copie ce lien :", u));
+    else prompt("Copie ce lien :", u);
+  }
+}
+
+/* ---------- Graphiques ---------- */
+function rankChart(list) {
+  const W = 420, H = 220, L = 40, Rt = 34, T = 10, B = 26, Dk = M.cpDist;
+  const ranks = list.flatMap(r => r.cp.map(c => c[1]).filter(v => v != null));
+  if (!ranks.length) return `<p class="hint">Pas de classement intermédiaire disponible.</p>`;
+  let lo = Math.min(...ranks), hi = Math.max(...ranks);
+  const pd = Math.max(3, (hi - lo) * .15);
+  lo = Math.max(1, lo - pd); hi = hi + pd;
+  const X = d => L + (W - L - Rt) * d / 42.195, Y = v => T + (H - T - B) * (v - lo) / (hi - lo || 1);
+  let s = `<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="Évolution du classement">`;
+  for (let t = 0; t <= 4; t++) {
+    const v = lo + (hi - lo) * t / 4, y = Y(v);
+    s += `<line class="gl" x1="${L}" x2="${W - Rt}" y1="${y}" y2="${y}"/><text x="${L - 6}" y="${y + 4}" text-anchor="end">${Math.round(v)}</text>`;
+  }
+  Dk.forEach((d, j) => s += `<text x="${X(d)}" y="${H - 6}" text-anchor="middle">${KM_SHORT[j]}</text>`);
+  list.forEach((r, k) => {
+    const pts = r.cp.map((c, j) => c[1] != null ? [X(Dk[j]), Y(c[1])] : null).filter(Boolean);
+    if (!pts.length) return;
+    const st = `style="--c:var(--c${list.length > 1 ? k : 0})"`;
+    s += `<polyline class="ln" ${st} points="${pts.map(p => p.join(",")).join(" ")}"/>`;
+    pts.forEach(p => s += `<circle class="dot" ${st} cx="${p[0]}" cy="${p[1]}" r="3.4"/>`);
+    const e = pts[pts.length - 1];
+    s += `<text class="end" ${st} x="${e[0] + 6}" y="${e[1] + 4}">${r.cp[7][1] ?? ""}</text>`;
+  });
+  return s + "</svg>" + (list.length > 1 ? legend(list) : "");
+}
+
+function paceChart(list) {
+  const W = 420, H = 220, L = 40, Rt = 10, T = 10, B = 26, n = 8;
+  const med = S.dyn.map(d => p2s(d.paceMed));
+  const vals = list.flatMap(r => r.sp).concat(med).filter(v => v != null);
+  if (!vals.length) return "";
+  const lo = Math.min(...vals) * .97, hi = Math.max(...vals) * 1.03;
+  const X = j => L + (W - L - Rt) * (j + .5) / n, Y = v => T + (H - T - B) * (v - lo) / (hi - lo || 1);
+  let s = `<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="Allure par segment">`;
+  for (let t = 0; t <= 4; t++) {
+    const v = lo + (hi - lo) * t / 4, y = Y(v);
+    s += `<line class="gl" x1="${L}" x2="${W - Rt}" y1="${y}" y2="${y}"/><text x="${L - 6}" y="${y + 4}" text-anchor="end">${pace(v)}</text>`;
+  }
+  SEG_SHORT.forEach((l, j) => s += `<text x="${X(j)}" y="${H - 6}" text-anchor="middle">${l}</text>`);
+  s += `<polyline class="med" points="${med.map((v, j) => v != null ? `${X(j)},${Y(v)}` : "").filter(Boolean).join(" ")}"/>`;
+  list.forEach((r, k) => {
+    const st = `style="--c:var(--c${list.length > 1 ? k : 0})"`;
+    // on coupe la ligne là où la puce n'a pas été lue
+    let seg = [];
+    const flush = () => { if (seg.length > 1) s += `<polyline class="ln" ${st} points="${seg.join(" ")}"/>`; seg = []; };
+    r.sp.forEach((v, j) => {
+      if (v == null) { flush(); return; }
+      seg.push(`${X(j)},${Y(v)}`);
+      s += `<circle class="dot" ${st} cx="${X(j)}" cy="${Y(v)}" r="3.2"/>`;
+    });
+    flush();
+  });
+  s += "</svg>";
+  return s + `<div class="legend"><span><i class="dash"></i>Médiane du peloton</span>${list.length > 1 ? list.map((r, k) => `<span style="--c:var(--c${k})"><i></i>${esc(name(r))}</span>`).join("")
+    : `<span style="--c:var(--c0)"><i></i>${esc(name(list[0]))}</span>`}</div>`;
+}
+
+function histChart(bins, mark, stacked) {
+  const W = stacked ? 900 : 420, H = stacked ? 260 : 170, L = 34, Rt = 6, T = 14, B = 24, n = bins.length;
+  const mx = Math.max(...bins.map(b => b.n)) || 1, bw = (W - L - Rt) / n;
+  let s = `<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="Répartition des temps d'arrivée">`;
+  for (let t = 1; t <= 3; t++) {
+    const y = T + (H - T - B) * (1 - t / 3);
+    s += `<line class="gl" x1="${L}" x2="${W - Rt}" y1="${y}" y2="${y}"/><text x="${L - 5}" y="${y + 4}" text-anchor="end">${Math.round(mx * t / 3)}</text>`;
+  }
+  bins.forEach((b, j) => {
+    const x = L + bw * j + 1, w = bw - 2, ph = H - T - B;
+    if (stacked) {
+      const hh = ph * b.H / mx, hf = ph * b.F / mx;
+      s += `<rect class="bH" x="${x}" y="${H - B - hh}" width="${w}" height="${hh}" rx="1.5"/>`;
+      s += `<rect class="bF" x="${x}" y="${H - B - hh - hf}" width="${w}" height="${hf}" rx="1.5"/>`;
+    } else {
+      const hi = mark != null && mark >= b.lo && mark < b.lo + 600, h2 = Math.max(ph * b.n / mx, b.n ? 1.5 : 0);
+      s += `<rect class="bar${hi ? " hi" : ""}" x="${x}" y="${H - B - h2}" width="${w}" height="${h2}" rx="1.5"/>`;
+      if (hi) s += `<text class="mk" x="${x + w / 2}" y="${H - B - h2 - 5}" text-anchor="middle">toi</text>`;
+    }
+    if (/h00$/.test(b.lbl)) s += `<text x="${x + w / 2}" y="${H - 6}" text-anchor="middle">${b.lbl.replace("h00", " h")}</text>`;
+  });
+  s += "</svg>";
+  if (stacked) s += `<div class="legend"><span style="--c:var(--c0)"><i class="sq"></i>Hommes</span><span style="--c:var(--c3)"><i class="sq"></i>Femmes</span></div>`;
+  return s;
+}
+
+const legend = list => `<div class="legend">${list.map((r, k) => `<span style="--c:var(--c${k})"><i></i>${esc(name(r))}</span>`).join("")}</div>`;
+
+/* ---------- Statistiques ---------- */
+function topTable(l, catRank) {
+  return `<div class="tscroll"><table><thead><tr><th>${catRank ? "Rang" : "Place"}</th><th>Coureur</th><th class="r">Temps</th><th class="r">Allure</th>${catRank ? '<th class="r">Général</th>' : ""}</tr></thead><tbody>${
+    l.map((c, j) => { const r = R[c.i];
+      return `<tr><td><span class="rk ${medal(j + 1)}">${j + 1}</span></td><td><button class="lk" data-go="${c.i}">${esc(name(r))}</button></td>
+        <td class="r num">${c.t}</td><td class="r num">${c.pa}</td>${catRank ? `<td class="r num">${c.rg}</td>` : ""}</tr>`; }).join("")}</tbody></table></div>`;
+}
+
+function renderStats() {
+  const p = $("#p-stats");
+  p.dataset.done = "1";
+  let h = `<div class="sec" style="margin-top:8px"><h2>Ce que dit la course</h2><p class="hint">Les grandes tendances du peloton.</p>
+    <div class="ins">${S.insights.map(i => `<div><span>${esc(i.k)}</span><b>${esc(i.v)}</b><p>${esc(i.d)}</p></div>`).join("")}</div></div>`;
+
+  h += `<div class="sec"><h2>Répartition des temps</h2><p class="hint">Nombre d'arrivants par tranche de 10 minutes.</p>
+    <div class="box">${histChart(S.histTime, null, true)}</div></div>`;
+
+  h += `<div class="sec"><h2>Les dix premiers</h2><p class="hint">Hommes et femmes, avec les repères de chaque classement.</p><div class="two">${
+    ["H", "F"].map(g => { const b = S.byGender[g];
+      return `<div class="box"><h3 class="h">${g === "H" ? "Hommes" : "Femmes"}, ${nf(b.n)} arrivants</h3>
+        <p class="gline">Médiane <b>${b.tMed}</b>, allure médiane <b>${b.paceMed} /km</b>, ${nf(b.nsRate, 1)} % de negative splits.</p>
+        ${topTable(b.top)}</div>`; }).join("")}</div></div>`;
+
+  h += `<div class="sec"><h2>Comment le peloton a géré</h2><p class="hint">Vitesse de chaque segment comparée à la vitesse moyenne de chaque coureur. Sous 100 %, le peloton ralentit.</p>
+    <div class="two"><div class="box"><div class="tscroll"><table><thead><tr><th>Segment</th><th class="r">Allure médiane</th><th class="r">Vitesse relative</th></tr></thead><tbody>${
+      S.dyn.map(d => `<tr><td>km ${esc(d.seg)}</td><td class="r num">${d.paceMed}</td><td class="r num ${d.relMed < 100 ? "neg" : "pos"}">${nf(d.relMed, 1)} %</td></tr>`).join("")}</tbody></table></div></div>
+    <div class="box"><h3 class="h">Selon le niveau</h3><p class="hint">Peloton coupé en 5 groupes égaux, du plus rapide au plus lent.</p><div class="tscroll"><table><thead><tr><th>Groupe</th><th class="r">Temps médian</th><th class="r">Vitesse 2nde moitié</th><th class="r">Negative splits</th></tr></thead><tbody>${
+      S.fadeByLevel.map(q => `<tr><td>${esc(q.lbl.replace("Top ", ""))}</td><td class="r num">${q.tMed}</td><td class="r num ${cls(q.fade)}">${signed(q.fade, 1)} %</td><td class="r num">${nf(q.ns, 1)} %</td></tr>`).join("")}</tbody></table></div></div></div></div>`;
+
+  const keys = Object.keys(S.palmares);
+  PAL = PAL || keys[0];
+  h += `<div class="sec"><h2>Palmarès insolites</h2><p class="hint">Les faits marquants au-delà du chrono. Touche un nom pour ouvrir sa fiche.</p>
+    <div class="pills" id="palpills">${keys.map(k => `<button data-pal="${k}" aria-pressed="${k === PAL}">${esc(S.palmares[k].t.replace(/\s*\(.*\)$/, ""))}</button>`).join("")}</div>
+    <div class="box" id="palbox"></div></div>`;
+
+  h += `<div class="sec"><h2>Par catégorie</h2><p class="hint">${S.byCat.length} catégories. Ouvre une ligne pour voir son top 10.</p>${
+    S.byCat.slice().sort((a, b) => catSort(a.cat, b.cat)).map(c => `<details class="cat"><summary><span><span class="tag ${c.g}">${esc(c.cat)}</span></span>
+      <span>${nf(c.n)} coureur${c.n > 1 ? "s" : ""}</span><span class="m num">meilleur ${c.tBest}, médiane ${c.tMed}</span></summary>
+      <div class="body">${topTable(c.top, true)}</div></details>`).join("")}</div>`;
+
+  h += `<div class="sec"><h2>Nationalités</h2><p class="hint">${M.nNat} pays représentés.</p>
+    <div class="nats">${S.nats.map(x => `<span><b>${esc(x.k)}</b> ${x.n}</span>`).join("")}</div></div>`;
+
+  p.innerHTML = h;
+  drawPal();
+  p.addEventListener("click", e => {
+    const g = e.target.closest("[data-go]"), pl = e.target.closest("[data-pal]");
+    if (g) goTo(+g.dataset.go);
+    if (pl) { PAL = pl.dataset.pal; $$("#palpills button").forEach(b => b.setAttribute("aria-pressed", b.dataset.pal === PAL)); drawPal(); }
+  });
+}
+
+function drawPal() {
+  const P = S.palmares[PAL];
+  $("#palbox").innerHTML = `<h3 class="h">${esc(P.t)}</h3><p class="hint">${esc(P.u)}</p><div class="tscroll"><table><tbody>${
+    P.l.map((c, j) => { const r = R[c.i];
+      return `<tr><td class="num" style="color:var(--ink3);width:2rem">${j + 1}</td><td><button class="lk" data-go="${c.i}">${esc(name(r))}</button>
+        <span class="sub" style="display:inline;margin-left:8px">${esc(c.c)}, ${c.t}</span></td><td class="r num"><b style="font-weight:500">${esc(c.val)}</b></td></tr>`; }).join("")}</tbody></table></div>`;
+}
+
+/* ---------- Comparateur ---------- */
+function initCmp() {
+  $("#cq").addEventListener("input", () => {
+    const terms = norm($("#cq").value.trim()).split(/\s+/).filter(Boolean);
+    if (!terms.length || terms.join("").length < 2) { $("#hits").innerHTML = ""; return; }
+    const hits = R.filter(r => terms.every(t => r.key.includes(t))).slice(0, 8);
+    $("#hits").innerHTML = hits.length ? hits.map(r => `<li><button data-add="${r.i}"><span>${esc(name(r))}${CMP.includes(r.i) ? " ✓" : ""}</span><span class="num">${hms(r.t)}, ${ord(r.rg)}</span></button></li>`).join("")
+      : `<li class="hint" style="padding:8px 4px">Aucun coureur trouvé.</li>`;
+  });
+  $("#hits").addEventListener("click", e => {
+    const b = e.target.closest("[data-add]");
+    if (!b) return;
+    const i = +b.dataset.add;
+    if (!CMP.includes(i)) toggleCmp(i);
+    $("#cq").value = ""; $("#hits").innerHTML = ""; $("#cq").focus();
+  });
+  $("#chips").addEventListener("click", e => { const b = e.target.closest("[data-rm]"); if (b) toggleCmp(+b.dataset.rm); });
+  drawCmp();
+}
+
+function toggleCmp(i) {
+  if (CMP.includes(i)) { CMP = CMP.filter(x => x !== i); toast("Retiré du comparateur"); }
+  else {
+    if (CMP.length >= 4) { toast("4 coureurs maximum. Retires-en un d'abord."); return; }
+    CMP.push(i); toast(`Ajouté au comparateur (${CMP.length}/4)`);
+  }
+  const n = $("#cmpn"); n.hidden = !CMP.length; n.textContent = CMP.length;
+  drawCmp();
+  if ($("#p-res").classList.contains("on")) {
+    const y = window.scrollY; draw(); window.scrollTo(0, y);
+  }
+}
+
+function drawCmp() {
+  const list = CMP.map(i => R[i]);
+  $("#chips").innerHTML = list.map((r, k) => `<span class="chip" style="--c:var(--c${k})"><i></i>${esc(name(r))} <span class="num" style="color:var(--ink2)">${hms(r.t)}</span>
+    <button data-rm="${r.i}" aria-label="Retirer ${esc(name(r))}">×</button></span>`).join("");
+  if (!list.length) { $("#cmpout").innerHTML = `<div class="empty">Ajoute un premier coureur pour lancer la comparaison. Toi et ton partenaire d'entraînement, par exemple.</div>`; return; }
+
+  const rows = [
+    ["Temps", r => hms(r.t)],
+    ["Classement général", r => ord(r.rg)],
+    ["Classement catégorie", r => r.rcat ? `${ord(r.rcat)} en ${esc(r.c)}` : esc(r.c)],
+    ["Allure moyenne", r => `${r.pa} /km`],
+    ["1er semi", r => hms(r.s1)],
+    ["2nd semi", r => hms(r.s2)],
+    ["Écart entre semis", r => `<span class="${r.ds == null ? "zer" : cls(-r.ds)}">${dur(r.ds, true)}</span>`],
+    ["Places gagnées depuis le km 5", r => `<span class="${cls(r.gain)}">${signed(r.gain)}</span>`],
+    ["Régularité", r => r.reg != null ? `${nf(r.reg, 1)} %` : "—"]
+  ];
+  const head = list.map((r, k) => `<th class="r" style="--c:var(--c${k})"><span class="sw"></span>${esc(r.p)}</th>`).join("");
+  let h = `<div class="charts" style="margin-top:0">
+    <div class="box"><h3 class="h">Place au fil des kilomètres</h3>${rankChart(list)}</div>
+    <div class="box"><h3 class="h">Allure par segment</h3>${paceChart(list)}</div></div>
+    <div class="sec"><div class="box"><div class="tscroll"><table><thead><tr><th></th>${head}</tr></thead><tbody>${
+      rows.map(([l, f]) => `<tr><td>${l}</td>${list.map(r => `<td class="r num">${f(r)}</td>`).join("")}</tr>`).join("")}</tbody></table></div></div></div>`;
+  if (list.length > 1) {
+    const ref = list[0];
+    h += `<div class="sec"><h3 class="h">Écarts aux points de passage</h3><p class="hint">Par rapport à ${esc(name(ref))}. Négatif = en avance.</p>
+      <div class="box"><div class="tscroll"><table><thead><tr><th>Point</th>${head}</tr></thead><tbody>${
+      M.cpLabels.map((L, j) => `<tr><td>${L === "Finish" ? "Arrivée" : L.replace("KM", "km ")}</td>${list.map((r, k) => {
+        const t = r.cp[j][0], t0 = ref.cp[j][0];
+        if (!k) return `<td class="r num">${hms(t)}</td>`;
+        const dd = t != null && t0 != null ? t - t0 : null;
+        return `<td class="r num ${dd == null ? "zer" : cls(-dd)}">${dur(dd, true)}</td>`;
+      }).join("")}</tr>`).join("")}</tbody></table></div></div></div>`;
+  }
+  $("#cmpout").innerHTML = h;
+}
+
+function toast(msg) {
+  let t = $(".toast");
+  if (!t) { t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); document.body.appendChild(t); }
+  t.textContent = msg;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.remove(), 1800);
+}
+</script>
+</body>
+</html>
